@@ -35,11 +35,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var rpmTextView: TextView
     private val REQUEST_BLUETOOTH_ENABLED = 1
     private val REQUEST_BLUETOOTH_PERMISSION = 2
-
-
-    private val REQUEST_CODE_BLUETOOTH_CONNECT = 1
-    private lateinit var bluetoothManager: BluetoothManager
-    private lateinit var bluetoothAdapter: BluetoothAdapter
+    private lateinit var bluetoothImplementation: BluetoothImplementation
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,43 +43,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
         rpmTextView = findViewById<TextView>(R.id.rpmTextView)
-
-        checkBluetooth()
-    }
-
-    private fun checkBluetooth() {
-        //Getting info about device bluetooth adapter
-        bluetoothManager = getSystemService(BluetoothManager::class.java)
-        bluetoothAdapter = bluetoothManager.adapter
-
-        //Checking if bluetooth in device is enabled
-        //If not then requesting for enable
-        if (!bluetoothAdapter.isEnabled) {
-            //Checking if app have permission to enable bluetooth
-            //If not requesting for bluetooth permissions, then requesting enabled bluetooth
-            //If yes requesting enabled bluetooth
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        Manifest.permission.BLUETOOTH,
-                        Manifest.permission.BLUETOOTH_ADMIN,
-                        Manifest.permission.BLUETOOTH_SCAN,
-                        Manifest.permission.BLUETOOTH_CONNECT
-                    ),
-                    REQUEST_BLUETOOTH_PERMISSION
-                )
-            } else {
-                startActivityForResult(
-                    Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),
-                    REQUEST_BLUETOOTH_ENABLED
-                )
-            }
-        }
+        bluetoothImplementation = BluetoothImplementation(this, this)
+        bluetoothImplementation.checkBluetoothAccess()
     }
 
     override fun onRequestPermissionsResult(
