@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.mobilecardyno.ui.theme.MobileCarDynoTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +46,14 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.activity_main)
         rpmTextView = findViewById<TextView>(R.id.rpmTextView)
         bluetoothImplementation = BluetoothImplementation(this, this)
-        bluetoothImplementation.checkBluetoothAccess()
+        //bluetoothImplementation.checkBluetoothAccess()
+        bluetoothImplementation.checkIfBluetoothEnabled()
+
+        val dataSet = bluetoothImplementation.pairedDevices()
+        val recyclerViewAdapter = RecyclerViewAdapter(dataSet)
+        val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = recyclerViewAdapter
     }
 
     override fun onRequestPermissionsResult(
