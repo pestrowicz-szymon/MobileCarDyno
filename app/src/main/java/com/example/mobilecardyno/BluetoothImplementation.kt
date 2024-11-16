@@ -9,7 +9,9 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat.getSystemService
@@ -24,6 +26,9 @@ class BluetoothImplementation(
     //Getting info about device bluetooth adapter
     private val bluetoothManager: BluetoothManager = context.getSystemService(BluetoothManager::class.java)
     private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
+
+    fun getAdapter(): BluetoothAdapter {return bluetoothAdapter}
+    fun getManager(): BluetoothManager {return bluetoothManager}
 
     @SuppressLint("MissingPermission")
     fun pairedDevices(): Array<String> {
@@ -49,6 +54,7 @@ class BluetoothImplementation(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun checkBluetoothAccess() {
         if (ActivityCompat.checkSelfPermission(
                 context,
