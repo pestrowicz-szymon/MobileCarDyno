@@ -6,15 +6,13 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.core.content.ContextCompat.getSystemService
 
 class BluetoothImplementation(
     private val context: Context,
@@ -39,6 +37,14 @@ class BluetoothImplementation(
         }?.toTypedArray() ?: emptyArray()
     }
 
+    fun connectSocket(macAddress: String): BluetoothSocket {
+        val device: BluetoothDevice = bluetoothAdapter.getRemoteDevice(macAddress) // Adres MAC ELM327 (zmień na odpowiedni)
+        val socket: BluetoothSocket? = device.createRfcommSocketToServiceRecord(device.uuids[0].uuid)
+        socket?.connect()
+        return socket!!
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
     fun checkIfBluetoothEnabled() {
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -55,7 +61,7 @@ class BluetoothImplementation(
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
-    fun checkBluetoothAccess() {
+    private fun checkBluetoothAccess() {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.BLUETOOTH_CONNECT
