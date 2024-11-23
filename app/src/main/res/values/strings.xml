@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Mobile Car Dyno</string>
+    <string name="title_activity_bluetooth_device_picker">BluetoothDevicePicker</string>
 </resources>

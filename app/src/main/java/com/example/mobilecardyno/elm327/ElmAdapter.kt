@@ -1,21 +1,20 @@
-package com.example.mobilecardyno
+package com.example.mobilecardyno.elm327
 
 import android.bluetooth.BluetoothSocket
-import android.util.Log
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
 
 class ElmAdapter(
-    private val socket: BluetoothSocket
+    private val socket: BluetoothSocket?
 ) {
     val outputStream: OutputStream
     val inputStream: InputStream
     val reader: BufferedReader
 
     init {
-        outputStream = socket.outputStream
+        outputStream = socket!!.outputStream
         inputStream = socket.inputStream
         reader = BufferedReader(InputStreamReader(inputStream))
         outputStream.write("${ObdCommands.RESTART.code}\r".toByteArray())

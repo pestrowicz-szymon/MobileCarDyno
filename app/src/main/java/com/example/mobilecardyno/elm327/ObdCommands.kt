@@ -1,4 +1,4 @@
-package com.example.mobilecardyno
+package com.example.mobilecardyno.elm327
 
 enum class ObdCommands(val code: String) {
     RESPONSE("41"),     // Odpowiedz od urzadzenia

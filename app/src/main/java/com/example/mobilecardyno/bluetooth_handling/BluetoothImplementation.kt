@@ -1,4 +1,4 @@
-package com.example.mobilecardyno
+package com.example.mobilecardyno.bluetooth_handling
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -20,24 +20,34 @@ class BluetoothImplementation(
 ) {
     private val REQUEST_BLUETOOTH_ENABLED = 1
     private val REQUEST_BLUETOOTH_PERMISSION = 2
-
-    //Getting info about device bluetooth adapter
     private val bluetoothManager: BluetoothManager = context.getSystemService(BluetoothManager::class.java)
     private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
-    fun getAdapter(): BluetoothAdapter {return bluetoothAdapter}
-    fun getManager(): BluetoothManager {return bluetoothManager}
-
     @SuppressLint("MissingPermission")
-    fun pairedDevices(): Array<String> {
-        return bluetoothAdapter.bondedDevices?.map { device ->
-            val deviceName = device.name ?: "Nieznane urządzenie"
-            val macAddress = device.address
-            "$deviceName: $macAddress"
-        }?.toTypedArray() ?: emptyArray()
+    fun pairedDevices(): List<BluetoothDeviceInfo> {
+        val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter.bondedDevices
+        val deviceList = mutableListOf<BluetoothDeviceInfo>()
+        if (!pairedDevices.isNullOrEmpty()) {
+            for (device in pairedDevices) {
+                val deviceName = device.name // Nazwa urządzenia
+                val deviceMac = device.address // Adres MAC
+                deviceList.add(BluetoothDeviceInfo(deviceName, deviceMac))
+            }
+        }
+        return deviceList
     }
 
-    fun connectSocket(macAddress: String): BluetoothSocket {
+    fun connectSocket(macAddress: String): Result<BluetoothSocket> {
+        return try {
+            val socket = connectSocket2(macAddress)
+            Result.success(socket)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun connectSocket2(macAddress: String): BluetoothSocket {
         val device: BluetoothDevice = bluetoothAdapter.getRemoteDevice(macAddress) // Adres MAC ELM327 (zmień na odpowiedni)
         val socket: BluetoothSocket? = device.createRfcommSocketToServiceRecord(device.uuids[0].uuid)
         socket?.connect()
