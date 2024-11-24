@@ -23,10 +23,15 @@
             android:label="@string/title_activity_bluetooth_device_picker"
             android:theme="@style/Theme.MobileCarDyno" />
         <activity
+            android:name=".measurement.MeasurementActivity"
+            android:exported="false"
+            android:label="@string/title_activity_measurement_activity"
+            android:theme="@style/Theme.MobileCarDyno" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MobileCarDyno">
+            android:theme="@style/Theme.MobileCarDyno" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

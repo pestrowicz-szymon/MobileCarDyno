@@ -23,26 +23,25 @@ class BluetoothDevicePicker : ComponentActivity() {
     private fun setup() {
         setContentView(R.layout.bluetooth_device_picker)
         enableEdgeToEdge()
-        recyclerView = findViewById<RecyclerView>(R.id.recyclerViewBluetoothDevices)
+        recyclerView = findViewById(R.id.recyclerViewBluetoothDevices)
         recyclerView.layoutManager = LinearLayoutManager(this)
         bluetoothImplementation = BluetoothImplementation(this, this)
-        val devicesList = bluetoothImplementation.pairedDevices()
-        recyclerView.adapter = BluetoothRecyclerViewAdapter(devicesList) { macAddress ->
+        recyclerView.adapter = BluetoothRecyclerViewAdapter(bluetoothImplementation.pairedDevices(), this) { macAddress ->
             onDeviceSelected(macAddress)
         }
     }
 
     private fun onDeviceSelected(macAddress: String) {
-        Toast.makeText(this, "Łączenie z: $macAddress", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "${getString(R.string.PL_bluetooth_connecting)}: $macAddress", Toast.LENGTH_SHORT).show()
         val result = bluetoothImplementation.connectSocket(macAddress)
         result.onSuccess {
-            Toast.makeText(this, "Połączenie nawiązane", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.PL_bluetooth_connecting_successful), Toast.LENGTH_SHORT).show()
             ElmAdapterHolder.setAdapter(ElmAdapter(result.getOrNull()))
             val resultIntent = Intent()
             setResult(RESULT_OK, resultIntent)
             finish()
         }.onFailure {
-            Toast.makeText(this, "Błąd połączenia", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.PL_bluetooth_connecting_failed), Toast.LENGTH_SHORT).show()
         }
     }
 }

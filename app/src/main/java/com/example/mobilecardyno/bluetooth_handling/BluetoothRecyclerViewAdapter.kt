@@ -1,5 +1,6 @@
 package com.example.mobilecardyno.bluetooth_handling
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import com.example.mobilecardyno.R
 
 class BluetoothRecyclerViewAdapter (
     private val dataSet: List<BluetoothDeviceInfo>,
+    private val context: Context,
     private val onDeviceSelected: (String) -> Unit
 ) : RecyclerView.Adapter<BluetoothRecyclerViewAdapter.ViewHolder>() {
 
@@ -24,7 +26,7 @@ class BluetoothRecyclerViewAdapter (
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        viewHolder.textView.text = dataSet[position].name ?: "Nieznane urządzenie"
+        viewHolder.textView.text = dataSet[position].name ?: context.getString(R.string.PL_bluetooth_unknown_device)
         viewHolder.button.setOnClickListener {
             onDeviceSelected(dataSet[position].macAddress)
         }

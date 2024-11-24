@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Mobile Car Dyno</string>
     <string name="title_activity_bluetooth_device_picker">BluetoothDevicePicker</string>
+    <string name="title_activity_measurement_activity">MeasurementActivity</string>
+    <string name="PL_bluetooth_connecting">Łączenie z</string>
+    <string name="PL_bluetooth_connecting_successful">Połączenie nawiązane</string>
+    <string name="PL_bluetooth_connecting_failed">Błąd połączenia</string>
+    <string name="PL_bluetooth_unknown_device">Nieznane urządzenie</string>
 </resources>

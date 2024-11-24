@@ -13,13 +13,13 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import com.example.mobilecardyno.REQUEST_BLUETOOTH_ENABLED
+import com.example.mobilecardyno.REQUEST_BLUETOOTH_PERMISSION
 
 class BluetoothImplementation(
     private val context: Context,
     private val activity: Activity
 ) {
-    private val REQUEST_BLUETOOTH_ENABLED = 1
-    private val REQUEST_BLUETOOTH_PERMISSION = 2
     private val bluetoothManager: BluetoothManager = context.getSystemService(BluetoothManager::class.java)
     private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
@@ -29,8 +29,8 @@ class BluetoothImplementation(
         val deviceList = mutableListOf<BluetoothDeviceInfo>()
         if (!pairedDevices.isNullOrEmpty()) {
             for (device in pairedDevices) {
-                val deviceName = device.name // Nazwa urządzenia
-                val deviceMac = device.address // Adres MAC
+                val deviceName = device.name
+                val deviceMac = device.address
                 deviceList.add(BluetoothDeviceInfo(deviceName, deviceMac))
             }
         }
@@ -48,7 +48,7 @@ class BluetoothImplementation(
 
     @SuppressLint("MissingPermission")
     private fun connectSocket2(macAddress: String): BluetoothSocket {
-        val device: BluetoothDevice = bluetoothAdapter.getRemoteDevice(macAddress) // Adres MAC ELM327 (zmień na odpowiedni)
+        val device: BluetoothDevice = bluetoothAdapter.getRemoteDevice(macAddress)
         val socket: BluetoothSocket? = device.createRfcommSocketToServiceRecord(device.uuids[0].uuid)
         socket?.connect()
         return socket!!
