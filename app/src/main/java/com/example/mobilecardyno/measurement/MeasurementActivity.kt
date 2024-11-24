@@ -47,6 +47,6 @@ class MeasurementActivity: ComponentActivity() {
     private fun setup() {
         setContentView(R.layout.activity_measurement)
         enableEdgeToEdge()
-        textView = findViewById<TextView>(R.id.textView2)
+        textView = findViewById(R.id.textView2)
     }
 }

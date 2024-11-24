@@ -7,16 +7,13 @@ import java.io.InputStreamReader
 import java.io.OutputStream
 
 class ElmAdapter(
-    private val socket: BluetoothSocket?
+    socket: BluetoothSocket?
 ) {
-    val outputStream: OutputStream
-    val inputStream: InputStream
-    val reader: BufferedReader
+    private val outputStream: OutputStream = socket!!.outputStream
+    private val inputStream: InputStream = socket!!.inputStream
+    private val reader: BufferedReader = BufferedReader(InputStreamReader(inputStream))
 
     init {
-        outputStream = socket!!.outputStream
-        inputStream = socket.inputStream
-        reader = BufferedReader(InputStreamReader(inputStream))
         outputStream.write("${ObdCommands.RESTART.code}\r".toByteArray())
         outputStream.flush()
     }
@@ -31,12 +28,12 @@ class ElmAdapter(
             }
             response = reader.readLine()
         }
-        when (response.substring(0,5)) {
-            "${ObdCommands.RESPONSE.code} ${ObdCommands.RPM.code}" -> return calcRPM(response.substring(6,11))
-            "${ObdCommands.RESPONSE.code} ${ObdCommands.SPEED.code}" -> return calcSpeed(response.substring(6,8))
-            "${ObdCommands.RESPONSE.code} ${ObdCommands.COOLANT_TEMP.code}" -> return calcTemp(response.substring(6,8))
-            "${ObdCommands.RESPONSE.code} ${ObdCommands.THROTTLE.code}" -> return calcThrottle(response.substring(6,8))
-            else -> return "CALCERROR"
+        return when (response.substring(0,5)) {
+            "${ObdCommands.RESPONSE.code} ${ObdCommands.RPM.code}" -> calcRPM(response.substring(6,11))
+            "${ObdCommands.RESPONSE.code} ${ObdCommands.SPEED.code}" -> calcSpeed(response.substring(6,8))
+            "${ObdCommands.RESPONSE.code} ${ObdCommands.COOLANT_TEMP.code}" -> calcTemp(response.substring(6,8))
+            "${ObdCommands.RESPONSE.code} ${ObdCommands.THROTTLE.code}" -> calcThrottle(response.substring(6,8))
+            else -> "-1"
         }
     }
 
