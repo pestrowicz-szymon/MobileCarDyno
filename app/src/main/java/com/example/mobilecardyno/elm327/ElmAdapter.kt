@@ -14,6 +14,10 @@ class ElmAdapter(
     private val reader: BufferedReader = BufferedReader(InputStreamReader(inputStream))
 
     init {
+        restartDevice()
+    }
+
+    fun restartDevice() {
         outputStream.write("${ObdCommands.RESTART.code}\r".toByteArray())
         outputStream.flush()
     }
