@@ -1,13 +1,13 @@
 package com.example.mobilecardyno.measurement
 
-import android.util.Log
 import kotlin.math.pow
 
 class CalculationClass(
-    private val measures: MutableList<MeasurementData>
+    private val measures: MutableList<MeasurementData>,
+    private val carWeight: Float
 ) {
     private var calculatedData: MutableList<CalculationData> = mutableListOf()
-    private var negativeHP: MutableList<CalculationData> = mutableListOf()
+    private var negativeHPList: MutableList<CalculationData> = mutableListOf()
     private var result: MutableList<CalculationData> = mutableListOf()
 
     init {
@@ -56,9 +56,9 @@ class CalculationClass(
     private fun calcPhysicalValues() {
         for (item in calculatedData) {
             item.acceleration = item.deltaSpeed!! / (item.deltaTime!!/1000.0)
-            item.force = item.acceleration!! * 1450
+            item.force = item.acceleration!! * carWeight
             item.powerKW = item.force!! * item.speedFromRPMms!! / 1000
-            item.powerHP = item.powerKW!! * 1.34102209
+            item.powerHP = item.powerKW!! * 1.36
         }
     }
 
@@ -87,14 +87,14 @@ class CalculationClass(
             if (item.powerHPAVG!! > 0) {
                 result.add(item)
             } else {
-                negativeHP.add(item)
+                negativeHPList.add(item)
             }
         }
     }
 
     private fun calcSum() {
         for (item in result) {
-            item.negativeHP = calculateRegression(item.rpm, negativeHP)
+            item.negativeHP = calculateRegression(item.rpm, negativeHPList)
             item.sumHP = item.powerHPAVG!! - item.negativeHP!!
             //item.torque = item.sumHP!! * 0.7355 * 9550 / item.rpm
         }
@@ -108,7 +108,7 @@ class CalculationClass(
                 continue
             } else {
                 result[i].sumHPHann = result[i-2].sumHP!! * 0.2 + result[i-1].sumHP!! * 0.4 +result[i].sumHP!! * 0.2 +result[i+2].sumHP!! * 0.2
-                result[i].torque = result[i].sumHPHann!! * 0.7355 * 9550 / result[i].rpm
+                result[i].torque = result[i].sumHPHann!! / 1.36 * 9550 / result[i].rpm
             }
         }
         result.removeAt(0)
@@ -127,13 +127,13 @@ class CalculationClass(
             .filter { kotlin.math.abs(it.rpm - x) <= 100 }
             .map { it.powerHPAVG ?: 0.0 } // Kolumna M (lub powerHPAVG)
 
-        // Sprawdzamy, czy dane są wystarczające do wykonania regresji
-        if (filteredXData.isEmpty() || filteredYData.isEmpty() || filteredXData.size != filteredYData.size) {
-            throw IllegalArgumentException("Insufficient or mismatched data for regression calculation")
-        }
 
-        // Wykonujemy regresję liniową na przefiltrowanych danych
-        return forecast(x, filteredXData, filteredYData)
+        val result = forecast(x, filteredXData, filteredYData)
+        if (result.isNaN()) {
+            return 0.0
+        } else {
+            return result
+        }
     }
 
     //----------FORECAST FUNCTIONS ------------------

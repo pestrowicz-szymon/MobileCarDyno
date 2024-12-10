@@ -9,11 +9,11 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
+import androidx.core.view.isVisible
 import com.example.mobilecardyno.R
 import com.example.mobilecardyno.elm327.ElmAdapterHolder
 import com.example.mobilecardyno.elm327.ObdCommands
 import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -21,39 +21,34 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.pow
 
 class MeasurementActivity: ComponentActivity() {
     private val elmAdapter = ElmAdapterHolder.getAdapter()
-    private lateinit var textView: TextView
     private lateinit var maxTextView: TextView
     private lateinit var measureList: MutableList<MeasurementData>
     private lateinit var calculationList: MutableList<CalculationData>
+    private lateinit var lineChart: LineChart
+    //private lateinit var buttonLoadNext: Button
+    private var loadID = 0
+    private var carWeight: Float = 0.0f
     private var job: Job? = null
     private lateinit var button: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        carWeight = intent.getStringExtra("carWeight")!!.toFloat()
         setup()
         start()
-        //loadData()
-        ///val calculatedData = calcAll()
-        //createChart(calculatedData)
-        //start()
     }
 
     private fun start() {
         elmAdapter!!.restartDevice()
-        textView.text = "Przyspiesz wykorzystując jak największy zakres obrotów a następnie odpuść gaz i \"hamując silnikiem\" zwolnij do prędkości początkowej. Po wykonaniu pomiaru wciśnij guzik"
         job = CoroutineScope(Dispatchers.IO).launch {
-            //while(true) {
-            //    if (elmAdapter.readParameter(ObdCommands.THROTTLE.code).toInt() > 90) { break }
-            //}
-            textView.text = "Pomiar w trakcie"
             while (true) {
                 addMeasure(elmAdapter.readParameter(ObdCommands.SPEED.code).toInt(), elmAdapter.readParameter(ObdCommands.RPM.code).toInt())
             }
@@ -61,10 +56,10 @@ class MeasurementActivity: ComponentActivity() {
     }
 
     private fun stop() {
-        textView.text = "Obliczanie wyników"
         job?.cancel()
         job = null
-        createChart(calcAll())
+        calculationList = calcAll(carWeight)
+        createChart(calculationList)
     }
 
     private fun saveToFile(): File? {
@@ -88,8 +83,33 @@ class MeasurementActivity: ComponentActivity() {
         }
     }
 
+    private fun saveCalculationsToFile(): File? {
+        val csvHeader = "RPM,Force,baseHP,HP,Torque\n"
+        val csvData = calculationList.joinToString(separator = "\n") {
+            "${it.rpm},${it.sumHPHann},${it.torque}"
+        }
+        val csvContent = csvHeader + csvData
+        // Tworzymy plik w katalogu publicznym urządzenia (np. Downloads)
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val fileName = "calculations_$timeStamp.csv"
+        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName)
+        return try {
+            FileWriter(file).use { writer ->
+                writer.write(csvContent)
+            }
+            file
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     private fun loadData(){
-        val inputStream = this.resources.openRawResource(R.raw.measurements_4)
+        measureList.clear()
+        calculationList.clear()
+        val resourceName = "measurements_$loadID"
+        val resourceID = resources.getIdentifier(resourceName, "raw", packageName)
+        val inputStream = this.resources.openRawResource(resourceID)
         val reader = inputStream.bufferedReader()
         return reader.useLines { lines ->
             lines.drop(1).forEach { line ->
@@ -109,28 +129,29 @@ class MeasurementActivity: ComponentActivity() {
         measureList.add(MeasurementData(timestamp, speed, rpm))
     }
 
-    private fun calcAll(): MutableList<CalculationData> { return CalculationClass(measureList).getResult() }
+    private fun calcAll(carWeight: Float): MutableList<CalculationData> { return CalculationClass(measureList, carWeight).getResult() }
 
     @SuppressLint("SetTextI18n")
     private fun createChart(
         powerData: MutableList<CalculationData>
     ) {
-        for (item in powerData) {
-            Log.d("RESULT_DATA", "${item.rpm} ; ${item.sumHPHann} ; ${item.torque}")
-        }
-        val lineChart: LineChart = findViewById(R.id.lineChart)
+        //for (item in powerData) {
+        //    Log.d("RESULT_DATA", "${item.rpm} ; POWERHPAVG:${item.powerHPAVG} ; SUMHP${item.sumHP} ; ${item.sumHPHann} ; ${item.torque}")
+        //}
         val torqueEntries = powerData.map { Entry(it.rpm.toFloat(), it.torque!!.toFloat() ) }
         val sumHPEntries = powerData.map { Entry(it.rpm.toFloat(), it.sumHPHann!!.toFloat() ) }
 
         val maxTorque = torqueEntries.maxByOrNull { it.y }
         val maxPower = sumHPEntries.maxByOrNull { it.y }
 
-        val torqueDataSet = LineDataSet(torqueEntries, "Torque")
+        val torqueDataSet = LineDataSet(torqueEntries, "Moment obrotowy [nM]")
         torqueDataSet.setDrawCircles(false)
-        val sumHPDataSet = LineDataSet(sumHPEntries, "Sum HP")
+        val sumHPDataSet = LineDataSet(sumHPEntries, "Moc [km]")
         sumHPDataSet.setDrawCircles(false)
 
-        maxTextView.text = "Max HP:${maxPower!!.y} @ ${maxPower.x} \nMax Torque:${maxTorque!!.y} @ ${maxTorque.x}"
+        lineChart.isVisible = true
+
+        maxTextView.text = "Maksymalna moc:${maxPower!!.y} @ ${maxPower.x} \nMaksymalny moment obrotowy:${maxTorque!!.y} @ ${maxTorque.x}"
 
         torqueDataSet.color = Color.RED
         sumHPDataSet.color = Color.BLUE
@@ -145,13 +166,23 @@ class MeasurementActivity: ComponentActivity() {
     private fun setup() {
         setContentView(R.layout.activity_measurement)
         enableEdgeToEdge()
-        textView = findViewById(R.id.textView2)
         maxTextView = findViewById(R.id.textViewMaxValues)
+        lineChart = findViewById(R.id.lineChart)
         button = findViewById(R.id.button4)
+        //buttonLoadNext = findViewById(R.id.button8)
+        lineChart.isVisible = false
         button.setOnClickListener() {
             stop()
             saveToFile()
+            saveCalculationsToFile()
         }
+        /*buttonLoadNext.setOnClickListener() {
+            loadData()
+            buttonLoadNext.text = "Current: $loadID"
+            createChart(calcAll(carWeight))
+            loadID += 1
+            if (loadID == 13) { loadID = 0 }
+        }*/
         measureList = mutableListOf()
         calculationList = mutableListOf()
     }

@@ -6,4 +6,8 @@
     <string name="PL_bluetooth_connecting_successful">Połączenie nawiązane</string>
     <string name="PL_bluetooth_connecting_failed">Błąd połączenia</string>
     <string name="PL_bluetooth_unknown_device">Nieznane urządzenie</string>
+    <string name="PL_button_pair_device">Wyszukaj urządzenie</string>
+    <string name="PL_input_weight">Podaj masę pojazdu</string>
+    <string name="PL_input_weight_tip">Pamiętaj aby dodać masę pasażerów, ciężkich przedmiotów wewnątrz pojazdu oraz odjąć masę brakującego paliwa w baku</string>
+    <string name="PL_button_start">Rozpocznij pomiar</string>
 </resources>

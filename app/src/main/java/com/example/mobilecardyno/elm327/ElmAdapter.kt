@@ -20,6 +20,8 @@ class ElmAdapter(
     fun restartDevice() {
         outputStream.write("${ObdCommands.RESTART.code}\r".toByteArray())
         outputStream.flush()
+        outputStream.write("${ObdCommands.CLEARBUFFER.code}\r".toByteArray())
+        outputStream.flush()
     }
 
     fun readParameter(param: String): String {
