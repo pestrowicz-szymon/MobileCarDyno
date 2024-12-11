@@ -23,6 +23,11 @@
             android:label="@string/title_activity_bluetooth_device_picker"
             android:theme="@style/Theme.MobileCarDyno" />
         <activity
+            android:name=".InfoActivity"
+            android:exported="false"
+            android:label="@string/title_activity_info_activity"
+            android:theme="@style/Theme.MobileCarDyno" />
+        <activity
             android:name=".measurement.MeasurementActivity"
             android:exported="false"
             android:label="@string/title_activity_measurement_activity"

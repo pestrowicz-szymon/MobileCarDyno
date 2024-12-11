@@ -24,6 +24,7 @@ import com.example.mobilecardyno.measurement.MeasurementActivity
 class MainActivity : ComponentActivity() {
     private lateinit var button: Button
     private lateinit var button2: Button
+    private lateinit var infoButton: Button
     private lateinit var weightInput: EditText
     private lateinit var weightInputTip: TextView
 
@@ -46,6 +47,7 @@ class MainActivity : ComponentActivity() {
     private fun setupButtons() {
         button = findViewById(R.id.button)
         button2 = findViewById(R.id.button2)
+        infoButton = findViewById(R.id.buttonInfo)
         weightInput = findViewById(R.id.inputWeight)
         weightInputTip = findViewById(R.id.weight_input_tip)
 
@@ -76,6 +78,10 @@ class MainActivity : ComponentActivity() {
         button2.setOnClickListener() {
             val intent = Intent(this, BluetoothDevicePicker::class.java)
             devicePickerLauncher.launch(intent)
+        }
+        infoButton.setOnClickListener() {
+            val intent = Intent(this, InfoActivity::class.java)
+            startActivity(intent)
         }
     }
 

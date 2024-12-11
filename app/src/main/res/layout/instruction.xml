@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:justificationMode="inter_word"
+        android:text="W celu wykonania pomiaru:\n\n1.Połącz się z urządzeniem ELM 327\n\n2.Wpisz masę pojazdu (pamiętaj aby dodać masę osób w nim się znajdujących oraz ewentualnych ciężkich przemiotów. Uwzględnij też poziom paliwa, ponieważ producenci przeważnie podają masę pojazdu z pełnym bakiem\n\n3.Wejdź w ekran mierzenia i najlepiej w tym samym momencie naciśnij w pełni pedał przyspieszania do końca\n\n4.Trzymaj go wciśniętego na 100% do momentu aż obroty silnika będą bliskie maximum (w silnikach diesla przeważnie 4500, w przypadku silników benzynowych spójrz na czerwone pole na obrotomierzu)\n\n5. Odpuść pedał gazu i poczekaj aż samochód sam tocząc się zwolni do prędkości jaka była na początku pomiaru a następnie kliknij guzik zakończ pomiar"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
